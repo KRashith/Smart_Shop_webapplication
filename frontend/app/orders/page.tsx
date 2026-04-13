@@ -1,6 +1,6 @@
 // frontend/app/orders/page.tsx
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getMyOrders } from '../../lib/api'
 import { useAuth } from '../../lib/auth-context'
@@ -22,17 +22,18 @@ interface Order {
 }
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  paid: 'bg-green-100 text-green-700',
-  shipped: 'bg-blue-100 text-blue-700',
+  pending:   'bg-yellow-100 text-yellow-700',
+  paid:      'bg-green-100 text-green-700',
+  shipped:   'bg-blue-100 text-blue-700',
   delivered: 'bg-indigo-100 text-indigo-700',
   cancelled: 'bg-red-100 text-red-600',
 }
 
-export default function OrdersPage() {
+// ── Inner component uses useSearchParams — must be inside Suspense ──
+function OrdersContent() {
   const { user } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams()          // ← this hook requires Suspense
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const justPaid = searchParams.get('success') === 'true'
@@ -47,7 +48,11 @@ export default function OrdersPage() {
       .finally(() => setLoading(false))
   }, [user])
 
-  if (loading) return <div className="text-center py-16 text-gray-500">Loading orders...</div>
+  if (loading) {
+    return (
+      <div className="text-center py-16 text-gray-500">Loading orders...</div>
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -84,9 +89,7 @@ export default function OrdersPage() {
                   <span className="text-sm text-gray-500">Placed on</span>
                   <p className="font-medium text-gray-700">
                     {new Date(order.created_at).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
+                      day: 'numeric', month: 'long', year: 'numeric',
                     })}
                   </p>
                 </div>
@@ -96,11 +99,9 @@ export default function OrdersPage() {
                     ₹{order.total_amount.toLocaleString('en-IN')}
                   </p>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${
-                    statusColors[order.status] || 'bg-gray-100 text-gray-600'
-                  }`}
-                >
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${
+                  statusColors[order.status] || 'bg-gray-100 text-gray-600'
+                }`}>
                   {order.status}
                 </span>
               </div>
@@ -135,5 +136,30 @@ export default function OrdersPage() {
         </div>
       )}
     </div>
+  )
+}
+
+// ── Loading skeleton shown while OrdersContent loads ──
+function OrdersSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-10">
+      <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-4" />
+      <div className="h-4 w-64 bg-gray-100 rounded animate-pulse mb-8" />
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-white rounded-2xl border shadow-sm p-6 mb-4 animate-pulse">
+          <div className="h-4 w-32 bg-gray-200 rounded mb-3" />
+          <div className="h-4 w-48 bg-gray-100 rounded" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ── Default export wraps the content in Suspense ──
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={<OrdersSkeleton />}>
+      <OrdersContent />
+    </Suspense>
   )
 }

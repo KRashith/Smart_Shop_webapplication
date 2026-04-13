@@ -21,7 +21,7 @@ interface Category {
   name: string
   slug: string
 }
-
+export const dynamic = 'force-dynamic'
 const CATEGORIES: Category[] = [
   { id: 0,  name: 'All Products',     slug: 'all' },
   { id: 1,  name: 'Electronics',      slug: 'electronics' },

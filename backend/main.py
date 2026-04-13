@@ -12,7 +12,7 @@ app = FastAPI(title="Smart E-Commerce API", version="1.0.0")
 # Allow your frontend to talk to the backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://your-app.vercel.app"],
+    allow_origins=["http://localhost:3000", "https://smart-shop-webapplication-1euf4m40m-krashiths-projects.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

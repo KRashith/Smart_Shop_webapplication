@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { getProducts } from '../../lib/api'
 import ProductCard from '../../components/ProductCard'
 import api from '@/lib/api'
-
+export const dynamic = 'force-dynamic'
 interface Product {
   id: number
   name: string
@@ -21,7 +21,7 @@ interface Category {
   name: string
   slug: string
 }
-export const dynamic = 'force-dynamic'
+
 const CATEGORIES: Category[] = [
   { id: 0,  name: 'All Products',     slug: 'all' },
   { id: 1,  name: 'Electronics',      slug: 'electronics' },

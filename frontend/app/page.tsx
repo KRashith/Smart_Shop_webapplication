@@ -21,7 +21,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-700 via-indigo-600 to-purple-700 text-white">
+      <section className="bg-linear-to-br from-indigo-700 via-indigo-600 to-purple-700 text-white">
         <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col lg:flex-row items-center gap-10">
           <div className="flex-1 text-center lg:text-left">
             <span className="bg-white/20 text-white text-sm font-semibold px-4 py-1 rounded-full mb-6 inline-block">
@@ -76,7 +76,7 @@ export default function HomePage() {
             <Link
               key={cat.id}
               href={`/products?categoryId=${cat.id}`}
-              className={`bg-gradient-to-br ${cat.color} text-white rounded-2xl p-6 text-center hover:scale-105 transition-transform duration-200 shadow-sm`}
+              className={`bg-linear-to-br ${cat.color} text-white rounded-2xl p-6 text-center hover:scale-105 transition-transform duration-200 shadow-sm`}
             >
               <div className="text-4xl mb-3">{cat.emoji}</div>
               <p className="font-semibold text-sm leading-tight">{cat.name}</p>
@@ -87,7 +87,7 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 pb-16">
-        <div className="bg-gradient-to-r from-orange-500 to-pink-600 rounded-3xl p-10 text-white text-center">
+        <div className="bg-linear-to-r from-orange-500 to-pink-600 rounded-3xl p-10 text-white text-center">
           <h2 className="text-4xl font-bold mb-3">Ready to explore?</h2>
           <p className="text-orange-100 text-lg mb-6">
             60+ products. Real brands. Unbeatable prices.

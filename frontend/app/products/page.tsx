@@ -1,11 +1,10 @@
 // frontend/app/products/page.tsx
 'use client'
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { getProducts } from '../../lib/api'
 import ProductCard from '../../components/ProductCard'
-import api from '@/lib/api'
-export const dynamic = 'force-dynamic'
+
 interface Product {
   id: number
   name: string
@@ -23,26 +22,26 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-  { id: 0,  name: 'All Products',     slug: 'all' },
-  { id: 1,  name: 'Electronics',      slug: 'electronics' },
-  { id: 2,  name: 'Mobile & Tablets', slug: 'mobile-tablets' },
-  { id: 3,  name: 'Fashion Men',      slug: 'fashion-men' },
-  { id: 4,  name: 'Fashion Women',    slug: 'fashion-women' },
-  { id: 5,  name: 'Home & Kitchen',   slug: 'home-kitchen' },
-  { id: 6,  name: 'Books',            slug: 'books' },
-  { id: 7,  name: 'Sports & Fitness', slug: 'sports-fitness' },
-  { id: 8,  name: 'Beauty & Personal',slug: 'beauty-personal' },
+  { id: 0, name: 'All Products',      slug: 'all' },
+  { id: 1, name: 'Electronics',       slug: 'electronics' },
+  { id: 2, name: 'Mobile & Tablets',  slug: 'mobile-tablets' },
+  { id: 3, name: 'Fashion Men',       slug: 'fashion-men' },
+  { id: 4, name: 'Fashion Women',     slug: 'fashion-women' },
+  { id: 5, name: 'Home & Kitchen',    slug: 'home-kitchen' },
+  { id: 6, name: 'Books',             slug: 'books' },
+  { id: 7, name: 'Sports & Fitness',  slug: 'sports-fitness' },
+  { id: 8, name: 'Beauty & Personal', slug: 'beauty-personal' },
 ]
 
 const SORT_OPTIONS = [
-  { label: 'Newest',        value: 'newest' },
-  { label: 'Price: Low → High', value: 'price_asc' },
-  { label: 'Price: High → Low', value: 'price_desc' },
-  { label: 'Name A → Z',   value: 'name_asc' },
+  { label: 'Newest',            value: 'newest' },
+  { label: 'Price: Low to High', value: 'price_asc' },
+  { label: 'Price: High to Low', value: 'price_desc' },
+  { label: 'Name A to Z',        value: 'name_asc' },
 ]
 
-export default function ProductsPage() {
-  const searchParams = useSearchParams()
+// ── All logic lives here, inside Suspense ─────────────────
+function ProductsContent() {
   const [products, setProducts]     = useState<Product[]>([])
   const [filtered, setFiltered]     = useState<Product[]>([])
   const [search, setSearch]         = useState('')
@@ -52,7 +51,6 @@ export default function ProductsPage() {
   const [sort, setSort]             = useState('newest')
   const [loading, setLoading]       = useState(true)
 
-  // Fetch all products once
   useEffect(() => {
     setLoading(true)
     getProducts()
@@ -63,7 +61,6 @@ export default function ProductsPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  // Apply filters/sort locally for instant response
   useEffect(() => {
     let result = [...products]
 
@@ -88,8 +85,8 @@ export default function ProductsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
 
-      {/* Hero Banner */}
-      <div className="bg-linear-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
+      {/* Hero Banner — fixed: bg-gradient-to-r (was bg-linear-to-r) */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
         <h1 className="text-4xl font-bold mb-2">Shop Everything</h1>
         <p className="text-indigo-100">
           {products.length} products across {CATEGORIES.length - 1} categories
@@ -99,7 +96,7 @@ export default function ProductsPage() {
       <div className="flex gap-8">
 
         {/* Sidebar filters */}
-        <aside className="hidden lg:block w-56 shrink-0">
+        <aside className="hidden lg:block w-56 flex-shrink-0">
           <div className="bg-white rounded-2xl border p-5 sticky top-24">
             <h3 className="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">
               Categories
@@ -160,7 +157,7 @@ export default function ProductsPage() {
               placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 min-w-50 border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="flex-1 min-w-[200px] border rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <select
               value={sort}
@@ -179,7 +176,7 @@ export default function ProductsPage() {
               <button
                 key={cat.id}
                 onClick={() => setCategoryId(cat.id)}
-                className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition ${
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition ${
                   categoryId === cat.id
                     ? 'bg-indigo-600 text-white'
                     : 'bg-white border text-gray-600 hover:border-indigo-400'
@@ -192,8 +189,11 @@ export default function ProductsPage() {
 
           {/* Results count */}
           <p className="text-sm text-gray-500 mb-4">
-            Showing <span className="font-semibold text-gray-800">{filtered.length}</span> products
-            {categoryId > 0 && ` in ${CATEGORIES.find(c => c.id === categoryId)?.name}`}
+            Showing{' '}
+            <span className="font-semibold text-gray-800">{filtered.length}</span>{' '}
+            products
+            {categoryId > 0 &&
+              ` in ${CATEGORIES.find((c) => c.id === categoryId)?.name}`}
           </p>
 
           {/* Product grid */}
@@ -207,7 +207,12 @@ export default function ProductsPage() {
             <div className="text-center py-20">
               <p className="text-gray-400 text-lg mb-3">No products found</p>
               <button
-                onClick={() => { setSearch(''); setCategoryId(0); setMinPrice(''); setMaxPrice('') }}
+                onClick={() => {
+                  setSearch('')
+                  setCategoryId(0)
+                  setMinPrice('')
+                  setMaxPrice('')
+                }}
                 className="text-indigo-600 hover:underline"
               >
                 Clear all filters
@@ -223,5 +228,22 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// ── Page export wraps everything in Suspense ──────────────
+export default function ProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 max-w-7xl mx-auto px-4 py-8">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-2xl h-72 animate-pulse" />
+          ))}
+        </div>
+      }
+    >
+      <ProductsContent />
+    </Suspense>
   )
 }
